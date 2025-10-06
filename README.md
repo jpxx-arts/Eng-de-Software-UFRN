@@ -57,8 +57,14 @@ Isso criará uma cópia local do repositório em sua máquina.
 
 ```
 Eng-de-Software-UFRN/
+├── diagrams
+│   ├── diagrama_casos_usuario.drawio.svg
+│   ├── diagrama_casos_usuario.drawio.xml
+│   ├── diagrama_de_classes.drawio.svg
+│   └── diagrama_de_classes.drawio.xml
 ├── LICENSE
 ├── README.md
+└── USER_STORIES.md
 ```
 
 - LICENSE: termos da licença do projeto (MIT).
