@@ -2,7 +2,7 @@
 
 Este documento é um relatório que trata sobre a utilização de princípios de projetos no desenvolvimento do sistema Tomaladaka. Os princípios discutidos e planejados neste trabalho são: **Single Responsibility Principle**, **Interface Segregation Principle**, **Dependency Injection Principle** e **Liskov Substitution Principle**.
 
-Sendo este projeto uma aplicação fullstack, alguns princípios já são intrínsecos aos frameworks (Django, Spring boot, Angular...) utilizados. Ou seja, os frameworks já os utilizam nativamente. No entanto, trataremos de uma abordagem agnóstica de tecnologia (até porque as tecnologias nem foram definidas ainda), mas levando em consideração alguns padrões de projeto (repository, service...) que sugerem a aplicação desses princípios.
+Sendo este projeto uma aplicação fullstack, alguns princípios já são intrínsecos aos frameworks (Django, Spring boot, Angular...) utilizados. Ou seja, os frameworks já os utilizam nativamente. No entanto, tentaremos abordar de uma forma agnóstica de tecnologia (até porque as tecnologias nem foram definidas ainda), mas utilizando exemplos em alguma linguagem e nos inspirando em algum framework. Outro detalhe é que também levaremos em consideração alguns padrões de projeto (repository, service...) que sugerem a aplicação desses princípios.
 
 Além dos padrões mencionados, serão utilizados os diagramas de classe e de casos de uso previamente elaborados como base para a análise da aplicação dos princípios. Abaixo estão os diagramas:
 
@@ -14,7 +14,7 @@ Diagrama 2: Diagrama de casos de uso
 
 ## Single Responsibility Principle
 
-Seguindo a definição desse princípio, temos que criar módulos com uma função bem definida para cada um. No Diagrama 1, temos métodos que exemplificam isso, como `addToOrder(Order, Item)`,  `requestDelivery(Restaurant, Order)`, `addItem(item)`. Como o próprio nome desses métodos sugerem, temos que cada um possui uma função específica. Abaixo, o código mostra a implementação de um método conforme sua única responsabilidade.
+Seguindo a definição do **Single Responsibility Principle**, temos que criar módulos com uma função bem definida para cada um. No Diagrama 1, temos métodos que exemplificam isso, como `addToOrder(Order, Item)`,  `requestDelivery(Restaurant, Order)`, `addItem(item)`. Como o próprio nome desses métodos sugerem, temos que cada um possui uma função específica. Abaixo, o código mostra a implementação de um método conforme sua única responsabilidade.
 ```python
 class Client:
     # ...
@@ -76,7 +76,7 @@ class ClientRepository(Repository):
         return self.list().filter(phone=phone)
 ```
 
-No `ClientRepository` temosas funcionalidades de CRUD já implementadas, além de outros métodos que possamos precisar. Assim, podemos estender o Repository facilmente para as outras entidades.
+No `ClientRepository` temos as funcionalidades de CRUD já implementadas, além de outros métodos que possamos precisar. Assim, podemos estender o Repository facilmente para as outras entidades.
 
 ## Dependency Injection Principle
 
@@ -104,9 +104,9 @@ print(client.service.list_clients())
 
 ## Liskov Substitution Principle
 
-No diagrama de classes, temos que `Client` e `Restaurant` extendem de `User`, então a utilização de funcionalidades que são comuns a `User` nos permite utilizar a interface no lugar da classe pai.
+No diagrama de classes, temos que `Client` e `Restaurant` estendem de `User`, então a utilização de funcionalidades que são comuns a `User` nos permite utilizar a interface no lugar da classe pai.
 
-Um exemplo de utilização, seria o de fazer uma tela do sistema para inicial para o `Client` e outra para o `Restaurant`, mas que as duas telas mostram o nome do `User`. Assim, podemos ter:
+Um exemplo de utilização, seria o de fazer uma tela do sistema para o `Client` e outra para o `Restaurant`, mas que as duas telas mostram o nome do `User`. Assim, podemos ter:
 
 ```typescript
 // user.ts
