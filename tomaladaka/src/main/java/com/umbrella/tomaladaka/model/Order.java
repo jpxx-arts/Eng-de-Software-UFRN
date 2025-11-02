@@ -32,13 +32,16 @@ public class Order {
   @JoinColumn(name = "order_id")
   private List<Item> items;
 
+  @Column(nullable = false)
+  private Double totalPrice;
+
   @Embedded
   @AttributeOverrides({
     @AttributeOverride(name = "street", column = @Column(name = "origin_street")),
     @AttributeOverride(name = "city", column = @Column(name = "origin_city")),
     @AttributeOverride(name = "state", column = @Column(name = "origin_state")),
     @AttributeOverride(name = "zipCode", column = @Column(name = "origin_zip")),
-    @AttributeOverride(name = "country", column = @Column(name = "origin_country")) // <-- ADICIONE ESTA LINHA
+    @AttributeOverride(name = "country", column = @Column(name = "origin_country"))
   })
   private Address originAddress;
 
@@ -48,7 +51,7 @@ public class Order {
     @AttributeOverride(name = "city", column = @Column(name = "destination_city")),
     @AttributeOverride(name = "state", column = @Column(name = "destination_state")),
     @AttributeOverride(name = "zipCode", column = @Column(name = "destination_zip")),
-    @AttributeOverride(name = "country", column = @Column(name = "destination_country")) // <-- ADICIONE ESTA LINHA
+    @AttributeOverride(name = "country", column = @Column(name = "destination_country"))
   })
   private Address destinationAddress;
 
@@ -59,7 +62,8 @@ public class Order {
     this.paymentMethod = paymentMethod;
     this.status = Status.PENDING;
 
-    this.items = new ArrayList<>(cart.getCartItems()); // <-- Mudança aqui
+    this.items = new ArrayList<>(cart.getCartItems());
+    this.totalPrice = cart.getPrice();
 
     this.originAddress = originAddress;
     this.destinationAddress = destinationAddress;
