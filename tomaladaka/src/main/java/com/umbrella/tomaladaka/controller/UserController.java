@@ -1,0 +1,24 @@
+package com.umbrella.tomaladaka.controller;
+
+import com.umbrella.tomaladaka.model.User;
+import com.umbrella.tomaladaka.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+  @Autowired
+  private UserRepository userRepository;
+
+  @PostMapping
+  public ResponseEntity<User> createUser(@RequestBody User user) {
+    User savedUser = userRepository.save(user);
+    URI location = URI.create(String.format("/users/%d", savedUser.getId()));
+    return ResponseEntity.created(location).body(savedUser); // it returns 201 CREATED
+  }
+}
