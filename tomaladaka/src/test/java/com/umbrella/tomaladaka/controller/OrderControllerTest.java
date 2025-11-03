@@ -34,13 +34,27 @@ class OrderControllerTest {
 
   @Test
   void testListOrders() throws Exception {
-    Order order1 = new Order(new User("Alice"), new Restaurant("Pizza Place"), PaymentMethod.CREDIT_CARD,
-      new Cart(), new Address("Rua A", "SP", "SP", "01234-567", "Brasil"),
-      new Address("Rua B", "SP", "SP", "01235-678", "Brasil"));
+    Cart cart = new Cart();
 
-    Order order2 = new Order(new User("Bob"), new Restaurant("Burger Place"), PaymentMethod.CASH,
-      new Cart(), new Address("Rua C", "SP", "SP", "01236-789", "Brasil"),
-      new Address("Rua D", "SP", "SP", "01237-890", "Brasil"));
+    Order order1 = Order.builder()
+      .client(new User("Alice"))
+      .restaurant(new Restaurant("Pizza Place"))
+      .paymentMethod(PaymentMethod.CREDIT_CARD)
+      .totalPrice(cart.getPrice())
+      .items(cart.getCartItems())
+      .originAddress(new Address("Rua A", "SP", "SP", "01234-567", "Brasil",-5.123, -35.123))
+      .destinationAddress(new Address("Rua B", "SP", "SP", "01235-678", "Brasil", -5.12345, -35.132))
+      .build();
+
+    Order order2 = Order.builder()
+      .client(new User("Bob"))
+      .restaurant(new Restaurant("Burger Place"))
+      .paymentMethod(PaymentMethod.CASH)
+      .totalPrice(cart.getPrice())
+      .items(cart.getCartItems())
+      .originAddress(new Address("Rua C", "SP", "SP", "01236-567", "Brasil",-5.623, -35.523))
+      .destinationAddress(new Address("Rua D", "SP", "SP", "01237-678", "Brasil", -5.72345, -32.432))
+      .build();
 
     List<Order> orders = Arrays.asList(order1, order2);
 
@@ -55,9 +69,18 @@ class OrderControllerTest {
 
   @Test
   void testGetOrderById() throws Exception {
-    Order order = new Order(new User("Alice"), new Restaurant("Pizza Place"), PaymentMethod.CREDIT_CARD,
-      new Cart(), new Address("Rua A", "SP", "SP", "01234-567", "Brasil"),
-      new Address("Rua B", "SP", "SP", "01235-678", "Brasil"));
+
+    Cart cart = new Cart();
+
+    Order order = Order.builder()
+      .client(new User("Alice"))
+      .restaurant(new Restaurant("Pizza Place"))
+      .paymentMethod(PaymentMethod.CREDIT_CARD)
+      .totalPrice(cart.getPrice())
+      .items(cart.getCartItems())
+      .originAddress(new Address("Rua A", "SP", "SP", "01234-567", "Brasil",-5.623, -35.523))
+      .destinationAddress(new Address("Rua B", "SP", "SP", "01235-678", "Brasil", -5.72345, -32.432))
+      .build();
 
     when(orderService.getOrderById(1L)).thenReturn(order);
 
@@ -69,17 +92,32 @@ class OrderControllerTest {
 
   @Test
   void testCreateOrder() throws Exception {
-    Order orderToReturn = new Order(new User("Alice"), new Restaurant("Pizza Place"), PaymentMethod.CREDIT_CARD,
-      new Cart(), new Address("Rua A", "SP", "SP", "01234-567", "Brasil"),
-      new Address("Rua B", "SP", "SP", "01235-678", "Brasil"));
+    Cart cart = new Cart();
+
+    User user = new User("Alice");
+    Restaurant restaurant = new Restaurant("Pizza Place");
+
+    Address origin = new Address("Rua A", "SP", "SP", "01234-567", "Brasil",-5.623, -35.523);
+    Address destination = new Address("Rua B", "SP", "SP", "01235-678", "Brasil", -5.72345, -32.432);
+
+
+    Order orderToReturn = Order.builder()
+      .client(user)
+      .restaurant(restaurant)
+      .paymentMethod(PaymentMethod.CREDIT_CARD)
+      .totalPrice(cart.getPrice())
+      .items(cart.getCartItems())
+      .originAddress(origin)
+      .destinationAddress(destination)
+      .build();
 
     Map<String, Object> requestPayload = new HashMap<>();
-    requestPayload.put("client", new User("Alice"));
-    requestPayload.put("restaurant", new Restaurant("Pizza Place"));
+    requestPayload.put("client", user);
+    requestPayload.put("restaurant", restaurant);
     requestPayload.put("paymentMethod", PaymentMethod.CREDIT_CARD);
-    requestPayload.put("cart", new Cart()); // <-- O campo 'cart' que seu controller espera
-    requestPayload.put("originAddress", new Address("Rua A", "SP", "SP", "01234-567", "Brasil"));
-    requestPayload.put("destinationAddress", new Address("Rua B", "SP", "SP", "01235-678", "Brasil"));
+    requestPayload.put("cart", cart);
+    requestPayload.put("originAddress", origin);
+    requestPayload.put("destinationAddress", destination);
 
     when(orderService.createOrder(ArgumentMatchers.any(Order.class))).thenReturn(orderToReturn);
 
@@ -93,9 +131,18 @@ class OrderControllerTest {
 
   @Test
   void testUpdateStatus() throws Exception {
-    Order order = new Order(new User("Alice"), new Restaurant("Pizza Place"), PaymentMethod.CREDIT_CARD,
-      new Cart(), new Address("Rua A", "SP", "SP", "01234-567", "Brasil"),
-      new Address("Rua B", "SP", "SP", "01235-678", "Brasil"));
+    Cart cart = new Cart();
+
+    Order order = Order.builder()
+      .client(new User("Alice"))
+      .restaurant(new Restaurant("Pizza Place"))
+      .paymentMethod(PaymentMethod.CREDIT_CARD)
+      .totalPrice(cart.getPrice())
+      .items(cart.getCartItems())
+      .originAddress(new Address("Rua A", "SP", "SP", "01234-567", "Brasil",-5.623, -35.523))
+      .destinationAddress(new Address("Rua B", "SP", "SP", "01235-678", "Brasil", -5.72345, -32.432))
+      .build();
+
     order.setStatus(Status.COMPLETED);
 
     when(orderService.updateStatus(1L, Status.COMPLETED)).thenReturn(order);
