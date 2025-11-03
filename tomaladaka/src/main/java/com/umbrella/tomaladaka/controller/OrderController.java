@@ -20,17 +20,9 @@ public class OrderController {
   }
 
   @PostMapping
-  public ResponseEntity<Order> createOrder(@RequestBody OrderRequest request) {
-    Order order = new Order(
-      request.getClient(),
-      request.getRestaurant(),
-      request.getPaymentMethod(),
-      request.getCart(),
-      request.getOriginAddress(),
-      request.getDestinationAddress()
-    );
+  public ResponseEntity<Order> createOrder(@RequestBody OrderRequest request){
 
-    Order created = orderService.createOrder(order);
+    Order created = orderService.createOrderFromRequest(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(created);
   }
 

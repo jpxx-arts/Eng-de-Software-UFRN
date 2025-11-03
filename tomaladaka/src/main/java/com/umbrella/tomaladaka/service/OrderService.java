@@ -1,5 +1,6 @@
 package com.umbrella.tomaladaka.service;
 
+import com.umbrella.tomaladaka.dto.OrderRequest;
 import com.umbrella.tomaladaka.model.Address;
 import com.umbrella.tomaladaka.model.Cart;
 import com.umbrella.tomaladaka.model.PaymentMethod;
@@ -38,6 +39,24 @@ public class OrderService {
   public Order createOrder(Order order) {
     order.setStatus(Status.PENDING);
     return orderRepo.save(order);
+  }
+
+  public Order createOrderFromRequest(OrderRequest request) {
+    User client = userRepo.findById(request.getClientId())
+        .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + request.getClientId()));
+
+    Restaurant restaurant = restaurantRepo.findById(request.getRestaurantId())
+        .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + request.getRestaurantId()));
+
+    Order order = new Order(
+        client,
+        restaurant,
+        request.getPaymentMethod(),
+        request.getCart(),
+        request.getOriginAddress(),
+        request.getDestinationAddress());
+
+    return createOrder(order);
   }
 
   public List<Order> listOrders() {
