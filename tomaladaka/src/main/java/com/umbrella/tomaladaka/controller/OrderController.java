@@ -49,6 +49,15 @@ public class OrderController {
     return ResponseEntity.ok(order);
   }
 
+  @PostMapping("/{id}/assign-delivery")
+    public ResponseEntity<Order> assignDelivery(
+            @PathVariable Long id,
+            @RequestParam Long deliveryManId) {
+        
+        Order updatedOrder = orderService.assignDelivery(id, deliveryManId);
+        return ResponseEntity.ok(updatedOrder);
+  }
+
   @PatchMapping("/{id}/status")
   public ResponseEntity<Order> updateStatus(@PathVariable Long id, @RequestParam Status newStatus) {
     Order updated = orderService.updateStatus(id, newStatus);
