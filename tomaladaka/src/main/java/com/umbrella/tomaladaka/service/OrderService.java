@@ -23,7 +23,16 @@ public class OrderService {
   public Order createOrder(User client, Restaurant restaurant, PaymentMethod paymentMethod,
     Cart cart, Address originAddress, Address destinationAddress) {
 
-    Order order = new Order(client, restaurant, paymentMethod, cart, originAddress, destinationAddress);
+    Order order = Order.builder()
+      .client(client)
+      .restaurant(restaurant)
+      .paymentMethod(paymentMethod)
+      .originAddress(originAddress)
+      .destinationAddress(destinationAddress)
+      .totalPrice(cart.getPrice())
+      .items(cart.getCartItems())
+      .build();
+      
     return orderRepo.save(order);
   }
 

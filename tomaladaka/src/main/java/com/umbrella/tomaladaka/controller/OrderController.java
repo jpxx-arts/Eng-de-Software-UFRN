@@ -21,14 +21,15 @@ public class OrderController {
 
   @PostMapping
   public ResponseEntity<Order> createOrder(@RequestBody OrderRequest request) {
-    Order order = new Order(
-      request.getClient(),
-      request.getRestaurant(),
-      request.getPaymentMethod(),
-      request.getCart(),
-      request.getOriginAddress(),
-      request.getDestinationAddress()
-    );
+    Order order = Order.builder()
+      .client(request.getClient())
+      .restaurant(request.getRestaurant())
+      .paymentMethod(request.getPaymentMethod())
+      .items(request.getCart().getCartItems())
+      .totalPrice(request.getCart().getPrice())
+      .originAddress(request.getOriginAddress())
+      .destinationAddress(request.getDestinationAddress())
+      .build(); 
 
     Order created = orderService.createOrder(order);
     return ResponseEntity.status(HttpStatus.CREATED).body(created);
