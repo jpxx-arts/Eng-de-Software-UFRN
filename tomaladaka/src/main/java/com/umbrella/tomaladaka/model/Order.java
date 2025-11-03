@@ -34,21 +34,21 @@ public class Order {
 
   @Embedded
   @AttributeOverrides({
-    @AttributeOverride(name = "street", column = @Column(name = "origin_street")),
-    @AttributeOverride(name = "city", column = @Column(name = "origin_city")),
-    @AttributeOverride(name = "state", column = @Column(name = "origin_state")),
-    @AttributeOverride(name = "zipCode", column = @Column(name = "origin_zip")),
-    @AttributeOverride(name = "country", column = @Column(name = "origin_country"))
+      @AttributeOverride(name = "street", column = @Column(name = "origin_street")),
+      @AttributeOverride(name = "city", column = @Column(name = "origin_city")),
+      @AttributeOverride(name = "state", column = @Column(name = "origin_state")),
+      @AttributeOverride(name = "zipCode", column = @Column(name = "origin_zip")),
+      @AttributeOverride(name = "country", column = @Column(name = "origin_country"))
   })
   private Address originAddress;
 
   @Embedded
   @AttributeOverrides({
-    @AttributeOverride(name = "street", column = @Column(name = "destination_street")),
-    @AttributeOverride(name = "city", column = @Column(name = "destination_city")),
-    @AttributeOverride(name = "state", column = @Column(name = "destination_state")),
-    @AttributeOverride(name = "zipCode", column = @Column(name = "destination_zip")),
-    @AttributeOverride(name = "country", column = @Column(name = "destination_country")) 
+      @AttributeOverride(name = "street", column = @Column(name = "destination_street")),
+      @AttributeOverride(name = "city", column = @Column(name = "destination_city")),
+      @AttributeOverride(name = "state", column = @Column(name = "destination_state")),
+      @AttributeOverride(name = "zipCode", column = @Column(name = "destination_zip")),
+      @AttributeOverride(name = "country", column = @Column(name = "destination_country"))
   })
   private Address destinationAddress;
 
@@ -57,17 +57,22 @@ public class Order {
   private User deliveryMan;
 
   public Order(User client, Restaurant restaurant, PaymentMethod paymentMethod,
-    Cart cart, Address originAddress, Address destinationAddress) {
+      Cart cart, Address originAddress, Address destinationAddress) {
     this.client = client;
     this.restaurant = restaurant;
     this.paymentMethod = paymentMethod;
     this.status = Status.PENDING;
-
-    this.items = new ArrayList<>(cart.getCartItems());
-
     this.originAddress = originAddress;
     this.destinationAddress = destinationAddress;
+
+    if (cart != null && cart.getCartItems() != null) {
+      this.items = new ArrayList<>(cart.getCartItems());
+    } else {
+      this.items = new ArrayList<>();
+    }
+
   }
 
-  public Order() {}
+  public Order() {
+  }
 }

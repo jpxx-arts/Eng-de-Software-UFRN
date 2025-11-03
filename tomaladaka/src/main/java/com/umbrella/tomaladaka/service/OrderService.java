@@ -8,11 +8,15 @@ import com.umbrella.tomaladaka.model.Order;
 import com.umbrella.tomaladaka.model.Restaurant;
 import com.umbrella.tomaladaka.model.Status;
 import com.umbrella.tomaladaka.model.User;
+import com.umbrella.tomaladaka.model.Item;
 import com.umbrella.tomaladaka.repository.OrderRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import com.umbrella.tomaladaka.repository.RestaurantRepository;
 import com.umbrella.tomaladaka.repository.UserRepository;
+import com.umbrella.tomaladaka.repository.ItemRepository;
 
 @Service
 public class OrderService {
@@ -20,13 +24,15 @@ public class OrderService {
   private final OrderRepository orderRepo;
   private final RestaurantRepository restaurantRepo;
   private final UserRepository userRepo;
+  private final ItemRepository itemRepo;
 
   public OrderService(OrderRepository orderRepo, RestaurantRepository restaurantRepo,
-      UserRepository userRepo) {
+      UserRepository userRepo, ItemRepository itemRepo) {
 
     this.orderRepo = orderRepo;
     this.restaurantRepo = restaurantRepo;
     this.userRepo = userRepo;
+    this.itemRepo = itemRepo;
   }
 
   public Order createOrder(User client, Restaurant restaurant, PaymentMethod paymentMethod,
@@ -47,14 +53,25 @@ public class OrderService {
 
     Restaurant restaurant = restaurantRepo.findById(request.getRestaurantId())
         .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + request.getRestaurantId()));
-
     Order order = new Order(
         client,
         restaurant,
         request.getPaymentMethod(),
-        request.getCart(),
+        null,
         request.getOriginAddress(),
         request.getDestinationAddress());
+
+    List<Item> managedItems = new ArrayList<>();
+    if (request.getCart() != null && request.getCart().getCartItems() != null) {
+      for (Item itemFromCart : request.getCart().getCartItems()) {
+        Item managedItem = itemRepo.findById(itemFromCart.getId())
+            .orElseThrow(
+                () -> new IllegalArgumentException("Item não encontrado no catálogo: " + itemFromCart.getId()));
+
+        managedItems.add(managedItem);
+      }
+    }
+    order.setItems(managedItems);
 
     return createOrder(order);
   }
