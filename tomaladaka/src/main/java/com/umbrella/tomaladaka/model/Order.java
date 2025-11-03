@@ -38,7 +38,7 @@ public class Order {
     @AttributeOverride(name = "city", column = @Column(name = "origin_city")),
     @AttributeOverride(name = "state", column = @Column(name = "origin_state")),
     @AttributeOverride(name = "zipCode", column = @Column(name = "origin_zip")),
-    @AttributeOverride(name = "country", column = @Column(name = "origin_country")) // <-- ADICIONE ESTA LINHA
+    @AttributeOverride(name = "country", column = @Column(name = "origin_country"))
   })
   private Address originAddress;
 
@@ -48,9 +48,13 @@ public class Order {
     @AttributeOverride(name = "city", column = @Column(name = "destination_city")),
     @AttributeOverride(name = "state", column = @Column(name = "destination_state")),
     @AttributeOverride(name = "zipCode", column = @Column(name = "destination_zip")),
-    @AttributeOverride(name = "country", column = @Column(name = "destination_country")) // <-- ADICIONE ESTA LINHA
+    @AttributeOverride(name = "country", column = @Column(name = "destination_country")) 
   })
   private Address destinationAddress;
+
+  @ManyToOne
+  @JoinColumn(name = "delivery_man_id")
+  private User deliveryMan;
 
   public Order(User client, Restaurant restaurant, PaymentMethod paymentMethod,
     Cart cart, Address originAddress, Address destinationAddress) {
@@ -59,7 +63,7 @@ public class Order {
     this.paymentMethod = paymentMethod;
     this.status = Status.PENDING;
 
-    this.items = new ArrayList<>(cart.getCartItems()); // <-- Mudança aqui
+    this.items = new ArrayList<>(cart.getCartItems());
 
     this.originAddress = originAddress;
     this.destinationAddress = destinationAddress;
