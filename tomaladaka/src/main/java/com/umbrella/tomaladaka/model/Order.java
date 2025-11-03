@@ -57,21 +57,15 @@ public class Order {
   private User deliveryMan;
 
   public Order(User client, Restaurant restaurant, PaymentMethod paymentMethod,
-      Cart cart, Address originAddress, Address destinationAddress) {
-    this.client = client;
-    this.restaurant = restaurant;
-    this.paymentMethod = paymentMethod;
-    this.status = Status.PENDING;
-    this.originAddress = originAddress;
-    this.destinationAddress = destinationAddress;
-
-    if (cart != null && cart.getCartItems() != null) {
-      this.items = new ArrayList<>(cart.getCartItems());
-    } else {
-      this.items = new ArrayList<>();
+                 Address originAddress, Address destinationAddress) {
+        this.client = client;
+        this.restaurant = restaurant;
+        this.paymentMethod = paymentMethod;
+        this.status = Status.PENDING;
+        this.originAddress = originAddress;
+        this.destinationAddress = destinationAddress;
+        this.items = new ArrayList<>();
     }
-
-  }
 
   public Order() {
   }

@@ -38,7 +38,7 @@ public class OrderService {
   public Order createOrder(User client, Restaurant restaurant, PaymentMethod paymentMethod,
       Cart cart, Address originAddress, Address destinationAddress) {
 
-    Order order = new Order(client, restaurant, paymentMethod, cart, originAddress, destinationAddress);
+    Order order = new Order(client, restaurant, paymentMethod, originAddress, destinationAddress);
     return orderRepo.save(order);
   }
 
@@ -53,11 +53,11 @@ public class OrderService {
 
     Restaurant restaurant = restaurantRepo.findById(request.getRestaurantId())
         .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + request.getRestaurantId()));
+
     Order order = new Order(
         client,
         restaurant,
         request.getPaymentMethod(),
-        null,
         request.getOriginAddress(),
         request.getDestinationAddress());
 
@@ -71,6 +71,7 @@ public class OrderService {
         managedItems.add(managedItem);
       }
     }
+
     order.setItems(managedItems);
 
     return createOrder(order);
