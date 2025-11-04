@@ -1,12 +1,13 @@
 package com.umbrella.tomaladaka.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.ArrayList;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToOne;
@@ -14,6 +15,8 @@ import jakarta.persistence.OneToOne;
 @Data
 @Entity
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 @Table(name = "restaurants")
 public class Restaurant {
 
@@ -37,18 +40,6 @@ public class Restaurant {
 
   @OneToOne(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
   private Menu menu;
-
-  public Restaurant(String name, Address address, String phone) {
-    this.name = name;
-    this.address = address;
-    this.phone = phone;
-    this.deliveryPersonnelNames = new ArrayList<>();
-  }
-
-  public Restaurant(String name) {
-    this.name = name;
-    this.deliveryPersonnelNames = new ArrayList<>();
-  }
 
   public void addDeliveryPerson(String name) {
     if (this.deliveryPersonnelNames == null) {

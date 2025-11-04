@@ -1,6 +1,7 @@
 package com.umbrella.tomaladaka.controller;
 
 import com.umbrella.tomaladaka.model.Order;
+import com.umbrella.tomaladaka.dto.RestaurantRequest;
 import com.umbrella.tomaladaka.model.Menu;
 import com.umbrella.tomaladaka.model.Restaurant;
 import com.umbrella.tomaladaka.service.OrderService;
@@ -41,9 +42,9 @@ public class RestaurantController {
     }
 
     @PostMapping
-    public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
+    public ResponseEntity<Restaurant> createRestaurant(@RequestBody RestaurantRequest restaurantDTO) {
         // Agora chama o serviço
-        Restaurant savedRestaurant = restaurantService.createRestaurant(restaurant);
+        Restaurant savedRestaurant = restaurantService.createRestaurant(restaurantDTO);
         URI location = URI.create(String.format("/restaurants/%d", savedRestaurant.getId()));
         return ResponseEntity.created(location).body(savedRestaurant);
     }

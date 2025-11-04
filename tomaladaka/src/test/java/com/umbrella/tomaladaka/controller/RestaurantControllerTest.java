@@ -1,20 +1,25 @@
 package com.umbrella.tomaladaka.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.umbrella.tomaladaka.dto.RestaurantRequest;
 import com.umbrella.tomaladaka.model.Restaurant;
-import com.umbrella.tomaladaka.repository.RestaurantRepository;
+import com.umbrella.tomaladaka.service.RestaurantService;
+
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @WebMvcTest(RestaurantController.class)
 class RestaurantControllerTest {
@@ -26,22 +31,26 @@ class RestaurantControllerTest {
   private ObjectMapper objectMapper;
 
   @MockBean
-  private RestaurantRepository restaurantRepository;
+  private RestaurantService restaurantService;
 
   @Test
   void testCreateRestaurant() throws Exception {
-    Restaurant restaurantToCreate = new Restaurant("Restaurante de Teste");
+    Restaurant restaurant = Restaurant.builder()
+    .name("Resturante de Teste")
+    .phone("84996173514")
+    .build();
 
-    Restaurant savedRestaurant = new Restaurant("Restaurante de Teste");
-    savedRestaurant.setId(1L);
+    Map<String, Object> requestPayload = new HashMap<>();
+    requestPayload.put("name", restaurant.getName());
+    requestPayload.put("phone", restaurant.getPhone());
 
-    when(restaurantRepository.save(ArgumentMatchers.any(Restaurant.class))).thenReturn(savedRestaurant);
+    when(restaurantService.createRestaurant(any(RestaurantRequest.class))).thenReturn(restaurant);
 
     mockMvc.perform(post("/restaurants")
       .contentType(MediaType.APPLICATION_JSON)
-      .content(objectMapper.writeValueAsString(restaurantToCreate)))
+      .content(objectMapper.writeValueAsString(requestPayload)))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.id").value(1L))
-      .andExpect(jsonPath("$.name").value("Restaurante de Teste"));
+      .andExpect(jsonPath("$.name").value(restaurant.getName()));
   }
 }

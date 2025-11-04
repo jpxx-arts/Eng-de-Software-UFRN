@@ -1,5 +1,6 @@
 package com.umbrella.tomaladaka.controller;
 
+import com.umbrella.tomaladaka.dto.UserRequest;
 import com.umbrella.tomaladaka.model.User;
 import com.umbrella.tomaladaka.service.UserService; 
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody UserRequest user) {
         User savedUser = userService.createUser(user);
         URI location = URI.create(String.format("/users/%d", savedUser.getId()));
         return ResponseEntity.created(location).body(savedUser);

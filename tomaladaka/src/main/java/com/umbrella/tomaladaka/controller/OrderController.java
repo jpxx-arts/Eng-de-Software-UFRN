@@ -3,10 +3,10 @@ package com.umbrella.tomaladaka.controller;
 import com.umbrella.tomaladaka.dto.OrderRequest;
 import com.umbrella.tomaladaka.model.*;
 import com.umbrella.tomaladaka.service.OrderService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -20,10 +20,10 @@ public class OrderController {
   }
 
   @PostMapping
-  public ResponseEntity<Order> createOrder(@RequestBody OrderRequest request){
-
+  public ResponseEntity<Order> createOrder(@RequestBody OrderRequest request) {
     Order created = orderService.createOrderFromRequest(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    URI location = URI.create(String.format("/orders/%d", created.getId()));
+    return ResponseEntity.created(location).body(created);
   }
 
   @GetMapping

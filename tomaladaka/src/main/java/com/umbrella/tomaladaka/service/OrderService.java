@@ -38,7 +38,16 @@ public class OrderService {
   public Order createOrder(User client, Restaurant restaurant, PaymentMethod paymentMethod,
       Cart cart, Address originAddress, Address destinationAddress) {
 
-    Order order = new Order(client, restaurant, paymentMethod, originAddress, destinationAddress);
+    Order order = Order.builder()
+      .client(client)
+      .restaurant(restaurant)
+      .paymentMethod(paymentMethod)
+      .originAddress(originAddress)
+      .destinationAddress(destinationAddress)
+      .totalPrice(cart.getPrice())
+      .items(cart.getCartItems())
+      .build();
+      
     return orderRepo.save(order);
   }
 
@@ -49,17 +58,20 @@ public class OrderService {
 
   public Order createOrderFromRequest(OrderRequest request) {
     User client = userRepo.findById(request.getClientId())
-        .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + request.getClientId()));
+      .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + request.getClientId()));
 
     Restaurant restaurant = restaurantRepo.findById(request.getRestaurantId())
-        .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + request.getRestaurantId()));
+      .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + request.getRestaurantId()));
 
-    Order order = new Order(
-        client,
-        restaurant,
-        request.getPaymentMethod(),
-        request.getOriginAddress(),
-        request.getDestinationAddress());
+    Order order = Order.builder()
+      .client(client)
+      .restaurant(restaurant)
+      .paymentMethod(request.getPaymentMethod())
+      .items(request.getCart().getCartItems())
+      .totalPrice(request.getCart().getPrice())
+      .originAddress(request.getOriginAddress())
+      .destinationAddress(request.getDestinationAddress())
+      .build();
 
     List<Item> managedItems = new ArrayList<>();
     if (request.getCart() != null && request.getCart().getCartItems() != null) {
@@ -83,12 +95,12 @@ public class OrderService {
 
   public Order getOrderById(Long id) {
     return orderRepo.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
+      .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
   }
 
   public Order updateStatus(Long id, Status newStatus) {
     Order order = orderRepo.findById(id)
-        .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+      .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
 
     Status currentStatus = order.getStatus();
 

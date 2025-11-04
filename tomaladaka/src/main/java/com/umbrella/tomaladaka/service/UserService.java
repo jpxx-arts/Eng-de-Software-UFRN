@@ -1,5 +1,6 @@
 package com.umbrella.tomaladaka.service;
 
+import com.umbrella.tomaladaka.dto.UserRequest;
 import com.umbrella.tomaladaka.model.User;
 import com.umbrella.tomaladaka.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,11 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    public User createUser(User user) {
+    public User createUser(UserRequest userDTO) {
+        User user = User.builder()
+            .email(userDTO.email())
+            .name(userDTO.name())
+            .build();
         return userRepo.save(user);
     }
 

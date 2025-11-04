@@ -1,25 +1,37 @@
 package com.umbrella.tomaladaka.service;
 
+import com.umbrella.tomaladaka.dto.RestaurantRequest;
 import com.umbrella.tomaladaka.model.Menu;
 import com.umbrella.tomaladaka.model.Restaurant;
+import com.umbrella.tomaladaka.repository.MenuRepository;
 import com.umbrella.tomaladaka.repository.RestaurantRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RestaurantService {
 
     private final RestaurantRepository restaurantRepo;
+    private final MenuRepository menuRepository;
 
-    public RestaurantService(RestaurantRepository restaurantRepo) {
-        this.restaurantRepo = restaurantRepo;
-    }
+    public Restaurant createRestaurant(RestaurantRequest restaurantDTO) {
+        Menu menu = new Menu();
 
-    public Restaurant createRestaurant(Restaurant restaurant) {
-        Menu newMenu = new Menu();
-        restaurant.setMenu(newMenu);
-        newMenu.setRestaurant(restaurant);
-        return restaurantRepo.save(restaurant);
+        Restaurant restaurant = Restaurant.builder()
+            .name(restaurantDTO.getName())
+            .phone(restaurantDTO.getPhone())
+            .menu(menu)
+            .build();
+
+        Restaurant createdRestaurant = restaurantRepo.save(restaurant);
+
+        menu.setRestaurant(createdRestaurant);
+        menuRepository.save(menu);
+        return createdRestaurant;
     }
 
     public Restaurant getRestaurantById(Long id) {
