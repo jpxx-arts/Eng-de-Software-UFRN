@@ -56,15 +56,20 @@ public class Order {
 
   @Embedded
   @AttributeOverrides({
-    @AttributeOverride(name = "street", column = @Column(name = "destination_street")),
-    @AttributeOverride(name = "city", column = @Column(name = "destination_city")),
-    @AttributeOverride(name = "state", column = @Column(name = "destination_state")),
-    @AttributeOverride(name = "zipCode", column = @Column(name = "destination_zip")),
-    @AttributeOverride(name = "country", column = @Column(name = "destination_country")),
-    @AttributeOverride(name = "latitude", column = @Column(name = "destination_latitude")),
+      @AttributeOverride(name = "street", column = @Column(name = "destination_street")),
+      @AttributeOverride(name = "city", column = @Column(name = "destination_city")),
+      @AttributeOverride(name = "state", column = @Column(name = "destination_state")),
+      @AttributeOverride(name = "zipCode", column = @Column(name = "destination_zip")),
+      @AttributeOverride(name = "country", column = @Column(name = "destination_country")),
+      @AttributeOverride(name = "latitude", column = @Column(name = "destination_latitude")),
     @AttributeOverride(name = "longitude", column = @Column(name = "destination_longitude"))
   })
+
   private Address destinationAddress;
+
+  @ManyToOne
+  @JoinColumn(name = "delivery_man_id")
+  private User deliveryMan;
 
   @Transient
   public int getEstimatedDeliveryTime() {

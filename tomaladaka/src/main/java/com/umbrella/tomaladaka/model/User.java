@@ -1,11 +1,15 @@
 package com.umbrella.tomaladaka.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
 public class User {
@@ -17,14 +21,5 @@ public class User {
   private String name;
 
   private String email;
-
-  public User(String name, String email) {
-    this.name = name;
-    this.email = email;
-  }
-
-  public User(String name) {
-    this.name = name;
-  }
 }
 

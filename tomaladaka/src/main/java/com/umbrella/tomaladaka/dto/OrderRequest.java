@@ -6,8 +6,9 @@ import lombok.Data;
 
 @Data
 public class OrderRequest {
-  private User client;
-  private Restaurant restaurant;
+  private Long clientId;
+  private Long restaurantId;
+
   private PaymentMethod paymentMethod;
   private Cart cart;
   private Address originAddress;

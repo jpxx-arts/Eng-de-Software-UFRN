@@ -3,10 +3,10 @@ package com.umbrella.tomaladaka.controller;
 import com.umbrella.tomaladaka.dto.OrderRequest;
 import com.umbrella.tomaladaka.model.*;
 import com.umbrella.tomaladaka.service.OrderService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -21,18 +21,9 @@ public class OrderController {
 
   @PostMapping
   public ResponseEntity<Order> createOrder(@RequestBody OrderRequest request) {
-    Order order = Order.builder()
-      .client(request.getClient())
-      .restaurant(request.getRestaurant())
-      .paymentMethod(request.getPaymentMethod())
-      .items(request.getCart().getCartItems())
-      .totalPrice(request.getCart().getPrice())
-      .originAddress(request.getOriginAddress())
-      .destinationAddress(request.getDestinationAddress())
-      .build(); 
-
-    Order created = orderService.createOrder(order);
-    return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    Order created = orderService.createOrderFromRequest(request);
+    URI location = URI.create(String.format("/orders/%d", created.getId()));
+    return ResponseEntity.created(location).body(created);
   }
 
   @GetMapping
@@ -48,6 +39,15 @@ public class OrderController {
   public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
     Order order = orderService.getOrderById(id);
     return ResponseEntity.ok(order);
+  }
+
+  @PostMapping("/{id}/assign-delivery")
+    public ResponseEntity<Order> assignDelivery(
+            @PathVariable Long id,
+            @RequestParam Long deliveryManId) {
+        
+        Order updatedOrder = orderService.assignDelivery(id, deliveryManId);
+        return ResponseEntity.ok(updatedOrder);
   }
 
   @PatchMapping("/{id}/status")
