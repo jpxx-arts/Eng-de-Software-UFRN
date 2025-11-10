@@ -1,5 +1,8 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import numpy as np
 import sqlite3
 import os
 
@@ -14,6 +17,10 @@ VIEW_MASTER_SQL = os.path.join('delivery_metrics', 'view_master.sql')
 QUERY_TIME_CONDITIONS_SQL = os.path.join('delivery_metrics', 'query_time_taken_by_weather_conditions.sql')
 QUERY_EFF_RATING_SQL = os.path.join('delivery_metrics', 'query_deliver_efficiency_by_rating.sql')
 QUERY_EFF_AGE_SQL = os.path.join('delivery_metrics', 'query_deliver_efficiency_by_age.sql')
+QUERY_SPEED_HISTOGRAM_SQL = os.path.join('delivery_metrics', 'query_speed_histogram.sql')
+QUERY_SPEED_VS_RATING_SQL = os.path.join('delivery_metrics', 'query_speed_vs_rating.sql')
+QUERY_TOP_FASTEST_SQL = os.path.join('delivery_metrics', 'query_top_fastest_delivery_persons.sql')
+QUERY_TOP_SLOWEST_SQL = os.path.join('delivery_metrics', 'query_top_slowest_delivery_persons.sql')
 
 @st.cache_resource
 def get_connection(db_path):
@@ -219,6 +226,85 @@ with col_right:
     else:
         st.warning("Não há dados para a análise de eficiência por rating.")
 
+
+st.markdown("---")
+
+st.markdown("### 🏁 Top 10 Entregadores — Mais Rápidos e Mais Lentos")
+try:
+    df_fast = load_data_from_query(conn, QUERY_TOP_FASTEST_SQL)
+    if not df_fast.empty:
+        df_fast['avg_speed_kmh'] = df_fast['avg_speed_kmh'].round(2)
+        df_fast['avg_time_min'] = df_fast['avg_time_min'].round(2)
+        df_fast['total_distance_km'] = df_fast['total_distance_km'].round(2)
+
+    df_slow = load_data_from_query(conn, QUERY_TOP_SLOWEST_SQL)
+    if not df_slow.empty:
+        df_slow['avg_speed_kmh'] = df_slow['avg_speed_kmh'].round(2)
+        df_slow['avg_time_min'] = df_slow['avg_time_min'].round(2)
+        df_slow['total_distance_km'] = df_slow['total_distance_km'].round(2)
+
+    col_fast, col_slow = st.columns(2)
+    with col_fast:
+        st.subheader("Top 10 — Mais Rápidos")
+        if not df_fast.empty:
+            st.dataframe(df_fast, use_container_width=True)
+        else:
+            st.warning("Sem dados para entregadores mais rápidos.")
+
+    with col_slow:
+        st.subheader("Top 10 — Mais Lentos")
+        if not df_slow.empty:
+            st.dataframe(df_slow, use_container_width=True)
+        else:
+            st.warning("Sem dados para entregadores mais lentos.")
+except Exception as e:
+    st.warning(f"Não foi possível carregar os rankings dos entregadores: {e}")
+
+st.markdown("---")
+st.markdown("### 📊 Visualizações adicionais")
+try:
+    max_speed = st.slider("Filtro: velocidade máxima (km/h) para visualizações", min_value=50, max_value=300, value=150)
+
+    df_hist = load_data_from_query(conn, QUERY_SPEED_HISTOGRAM_SQL)
+    if not df_hist.empty:
+        df_hist_filtered = df_hist[df_hist['speed_kmh'] <= max_speed]
+        if not df_hist_filtered.empty:
+            fig_hist = px.histogram(df_hist_filtered, x='speed_kmh', nbins=40, title=f'Distribuição de velocidade (<= {max_speed} km/h)')
+            st.plotly_chart(fig_hist, use_container_width=True)
+        else:
+            st.info("Sem dados válidos para o histograma de velocidade no intervalo selecionado.")
+    else:
+        st.info("Sem dados para o histograma de velocidade.")
+
+    df_scatter = load_data_from_query(conn, QUERY_SPEED_VS_RATING_SQL)
+    if not df_scatter.empty:
+        x = df_scatter['avg_rating'].astype(float).to_numpy()
+        y = df_scatter['avg_speed_kmh'].astype(float).to_numpy()
+
+        if len(x) >= 2:
+            slope, intercept = np.polyfit(x, y, 1)
+            xs = np.linspace(x.min(), x.max(), 100)
+            ys = slope * xs + intercept
+            try:
+                r = np.corrcoef(x, y)[0, 1]
+                r2 = r**2
+            except Exception:
+                r2 = None
+
+            fig_scatter = px.scatter(df_scatter, x='avg_rating', y='avg_speed_kmh', size='deliveries', hover_data=['delivery_person_id', 'deliveries'],
+                                     title='Velocidade média por entregador vs Rating (min 5 entregas)')
+            fig_scatter.add_trace(go.Scatter(x=xs, y=ys, mode='lines', name='Regressão linear', line=dict(color='red')))
+            if r2 is not None:
+                fig_scatter.update_layout(title=f'Velocidade média por entregador vs Rating (min 5 entregas) — R²={r2:.2f}')
+        else:
+            fig_scatter = px.scatter(df_scatter, x='avg_rating', y='avg_speed_kmh', size='deliveries', hover_data=['delivery_person_id', 'deliveries'],
+                                     title='Velocidade média por entregador vs Rating (insuficiente para regressão)')
+
+        st.plotly_chart(fig_scatter, use_container_width=True)
+    else:
+        st.info("Sem entregadores com pelo menos 5 entregas ou dados insuficientes para o gráfico.")
+except Exception as e:
+    st.warning(f"Erro ao gerar visualizações adicionais: {e}")
 
 st.markdown("---")
 with st.expander("🕵️‍♂️ Explorar Dados Brutos (View `delivery_metrics_master`)"):

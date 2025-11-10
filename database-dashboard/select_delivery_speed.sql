@@ -1,1 +1,0 @@
-SELECT * FROM velocidade_entregadores;
