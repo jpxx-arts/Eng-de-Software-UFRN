@@ -21,14 +21,13 @@ QUERY_SPEED_HISTOGRAM_SQL = os.path.join('delivery_metrics', 'query_speed_histog
 QUERY_SPEED_VS_RATING_SQL = os.path.join('delivery_metrics', 'query_speed_vs_rating.sql')
 QUERY_TOP_FASTEST_SQL = os.path.join('delivery_metrics', 'query_top_fastest_delivery_persons.sql')
 QUERY_TOP_SLOWEST_SQL = os.path.join('delivery_metrics', 'query_top_slowest_delivery_persons.sql')
+QUERY_TIME_BY_FESTIVAL_SQL = os.path.join('delivery_metrics', 'query_time_by_festival.sql')
 
 @st.cache_resource
 def get_connection(db_path):
-    """Cria e armazena em cache a conexão com o banco de dados."""
     return sqlite3.connect(db_path, check_same_thread=False)
 
 def read_sql_file(filepath):
-    """Lê um arquivo SQL e retorna seu conteúdo como string."""
     try:
         with open(filepath, 'r') as f:
             return f.read()
@@ -41,10 +40,6 @@ def read_sql_file(filepath):
 
 @st.cache_resource(show_spinner="Verificando banco de dados...")
 def initialize_database(_conn):
-    """
-    Verifica se a tabela 'deliveries' existe. Se não, cria a tabela
-    e a popula a partir do 'food_delivery_dataset.csv'.
-    """
     cursor = _conn.cursor()
     
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='deliveries'")
@@ -124,10 +119,6 @@ def initialize_database(_conn):
 
 
 def setup_database(conn):
-    """
-    Garante que a VIEW principal exista no banco de dados.
-    Usa 'CREATE VIEW IF NOT EXISTS' para ser idempotente.
-    """
     try:
         view_sql = read_sql_file(VIEW_MASTER_SQL)
         view_sql_if_not_exists = view_sql.replace("CREATE VIEW", "CREATE VIEW IF NOT EXISTS")
@@ -141,10 +132,6 @@ def setup_database(conn):
 
 @st.cache_data(ttl=300)
 def load_data_from_query(_conn, query_path):
-    """
-    Carrega dados do banco de dados executando um arquivo de query.
-    O argumento _conn é ignorado pelo cache do Streamlit.
-    """
     query = read_sql_file(query_path)
     try:
         df = pd.read_sql_query(query, _conn)
@@ -156,7 +143,6 @@ def load_data_from_query(_conn, query_path):
 
 @st.cache_data(ttl=300)
 def load_raw_view_data(_conn):
-    """Carrega uma amostra de dados brutos da VIEW para exploração."""
     try:
         df = pd.read_sql_query("SELECT * FROM delivery_metrics_master LIMIT 1000", _conn)
         return df
@@ -225,6 +211,46 @@ with col_right:
         st.dataframe(df_rating, use_container_width=True)
     else:
         st.warning("Não há dados para a análise de eficiência por rating.")
+
+st.markdown("---")
+st.markdown("### 🎉 Impacto de Festivais no Tempo de Entrega")
+try:
+    df_festival = load_data_from_query(conn, QUERY_TIME_BY_FESTIVAL_SQL)
+    if not df_festival.empty:
+        df_festival['avg_delivery_time'] = df_festival['avg_delivery_time'].round(2)
+        df_festival['avg_time_taken'] = df_festival['avg_time_taken'].round(2)
+        df_festival['avg_speed_kmh'] = df_festival['avg_speed_kmh'].round(2)
+        
+        festival_data = df_festival[df_festival['is_festival'] == 1]
+        normal_data = df_festival[df_festival['is_festival'] == 0]
+        
+        avg_time_festival = festival_data['avg_time_taken'].values[0] if not festival_data.empty else 0
+        avg_time_normal = normal_data['avg_time_taken'].values[0] if not normal_data.empty else 0
+        time_delta_festival = avg_time_festival - avg_time_normal
+        
+        col_fest_metric1, col_fest_metric2 = st.columns(2)
+        with col_fest_metric1:
+            st.metric("Tempo Médio (Sem Festival)", f"{avg_time_normal:.2f} min")
+        with col_fest_metric2:
+            st.metric("Tempo Médio (Com Festival)", f"{avg_time_festival:.2f} min", 
+                     delta=f"{time_delta_festival:.2f} min (impacto)", delta_color="inverse" if time_delta_festival > 0 else "off")
+        
+        col_fest_metrics, col_fest_chart = st.columns(2)
+        
+        with col_fest_metrics:
+            st.subheader("Métricas por Status de Festival")
+            st.dataframe(df_festival[['festival_status', 'avg_delivery_time', 'avg_speed_kmh', 'total_deliveries']], use_container_width=True)
+        
+        with col_fest_chart:
+            st.subheader("Comparativo de Tempo Médio")
+            fig_festival = px.bar(df_festival, x='festival_status', y='avg_time_taken', 
+                                 title='Tempo Médio de Entrega: Festival vs Normal',
+                                 labels={'festival_status': 'Status', 'avg_time_taken': 'Tempo (minutos)'})
+            st.plotly_chart(fig_festival, use_container_width=True)
+    else:
+        st.warning("Sem dados para análise de impacto de festivais.")
+except Exception as e:
+    st.warning(f"Erro ao carregar dados de festivais: {e}")
 
 
 st.markdown("---")

@@ -4,6 +4,11 @@ SELECT
   id,
   delivery_person_id,
   time_taken,
+  CASE
+    WHEN (festival = "Yes") THEN 1
+    ELSE 0
+  END AS is_festival,
+  delta_time AS delivery_time,
   (
     (
       (restaurant_latitude - delivery_location_latitude) * (restaurant_latitude - delivery_location_latitude) + (
@@ -11,7 +16,7 @@ SELECT
       ) * (
         restaurant_longitude - delivery_location_longitude
       )
-    ) / CAST(time_taken AS REAL)
+    ) / CAST(delta_time AS REAL)
   ) AS proxy_speed,
   (
     6371.0 * ACOS(
@@ -27,7 +32,7 @@ SELECT
           RADIANS (restaurant_longitude) - RADIANS (delivery_location_longitude)
         ) + SIN(RADIANS (delivery_location_latitude)) * SIN(RADIANS (restaurant_latitude))
       )
-    ) / (CAST(Time_taken AS REAL) / 60.0)
+    ) / (CAST(delta_time AS REAL) / 60.0)
   ) AS speed_kmh,
   CASE
     WHEN delivery_person_ratings > 4.5 THEN 'high rating'
@@ -68,4 +73,5 @@ WHERE
   AND weather_conditions IS NOT NULL
   AND weather_conditions <> 'conditions NaN'
   AND road_traffic_density IS NOT NULL
-  AND road_traffic_density <> 'NaN';
+  AND road_traffic_density <> 'NaN'
+  AND delta_time > 0;

@@ -1,6 +1,6 @@
 SELECT
   condition_status,
-  AVG(time_taken) AS average_time_minutes, -- min
+  AVG(delivery_time) AS average_time_minutes, -- min
   COUNT(id) AS total_deliveries
 FROM
   delivery_metrics_master
