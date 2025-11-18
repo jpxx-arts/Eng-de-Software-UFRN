@@ -93,3 +93,21 @@ void updateUser_shouldNotChangeWhenDetailsFieldsAreNull() {
 ```
 
 Sendo assim, como mostrado no JaCoCo, a nossa classe possui 100% de cobertura nos testes, tanto em instruções quanto em branches.
+
+## Explicação por teste
+
+- `createUser_shouldSaveAndReturnUser`: Neste teste, é criado um usuário e depois a criação e verificada com o retorno.
+- `getUserById_shouldReturnUser_whenFound`: Neste teste, um usuário é buscado por ID e é verificado que o usuário é encontrado e retornado.
+- `getUserById_shouldThrow_whenNotFound`: Verifica-se que quando um usuário não é encontrado numa busca por ID, o erro **IllegalArgumentException** é levantado.
+- `getAllUsers_shouldReturnList`: É verificado que o método de listagem de usuários retorna uma lista com os 2 usuários criados.
+- `updateUser_shouldModifyAndSave`: É verificado que um usuário é modificado com os dois campos (name e email).
+- `deleteUser_shouldCallDeleteOnRepo`: É verificado que o método delete é chamado uma vez no repository quando solicitada a exclusão de um User.
+- `updateUser_shouldUpdateOnlyNameWhenEmailNull`: É verificado que apenas o name é alterado quando solicitado apenas esse campo no update do service.
+- `updateUser_shouldUpdateOnlyEmailWhenNameNull`: Mesma coisa que o de cima, mas para email.
+- `updateUser_shouldNotChangeWhenDetailsFieldsAreNull`: Verifica-se que nada muda quando passamos argumentos nulos para o update do User.
+
+## Resultado no terminal
+
+Abaixo está o print do terminal com os 15 testes executados, contando com os 9 de UserService.
+
+![Terminal](./terminal.png)
