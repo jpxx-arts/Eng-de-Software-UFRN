@@ -7,6 +7,9 @@ import com.umbrella.tomaladaka.model.Restaurant;
 import com.umbrella.tomaladaka.service.OrderService;
 import com.umbrella.tomaladaka.service.MenuService;
 import com.umbrella.tomaladaka.service.RestaurantService;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,19 +18,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/restaurants")
+@RequiredArgsConstructor
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
     private final OrderService orderService;
     private final MenuService menuService;
-
-    public RestaurantController(RestaurantService restaurantService, OrderService orderService,
-            MenuService menuService) {
-        this.restaurantService = restaurantService;
-        this.orderService = orderService;
-        this.menuService = menuService;
-
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Long id) {
