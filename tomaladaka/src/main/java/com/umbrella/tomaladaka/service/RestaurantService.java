@@ -23,6 +23,7 @@ public class RestaurantService {
 
         Restaurant restaurant = Restaurant.builder()
             .name(restaurantDTO.getName())
+            .address(restaurantDTO.getAddress())
             .phone(restaurantDTO.getPhone())
             .menu(menu)
             .build();
